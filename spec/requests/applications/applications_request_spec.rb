@@ -17,6 +17,8 @@ feature 'Adding applications' do
     end
 
     scenario 'adding invalid app' do
+      fill_in 'doorkeeper_application[name]', with: ''
+      fill_in 'doorkeeper_application[redirect_uri]', with: ''
       click_button 'Submit'
       i_should_see 'Whoops! Check your form for possible errors'
     end

@@ -2,7 +2,7 @@ require 'spec_helper_integration'
 
 feature 'Implicit Grant Flow (feature spec)' do
   background do
-    config_is_set(:authenticate_resource_owner) { User.first || redirect_to('/sign_in') }
+    config_is_set(:authenticate_resource_owner) { Doorkeeper.configuration.user_model.constantize.first || redirect_to('/sign_in') }
     config_is_set(:grant_flows, ["implicit"])
     client_exists
     create_resource_owner
@@ -21,7 +21,7 @@ end
 
 describe 'Implicit Grant Flow (request spec)' do
   before do
-    config_is_set(:authenticate_resource_owner) { User.first || redirect_to('/sign_in') }
+    config_is_set(:authenticate_resource_owner) { Doorkeeper.configuration.user_model.constantize.first || redirect_to('/sign_in') }
     config_is_set(:grant_flows, ["implicit"])
     client_exists
     create_resource_owner

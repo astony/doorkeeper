@@ -53,7 +53,9 @@ RSpec.configure do |config|
 
   config.before do
     DatabaseCleaner.start
-    Doorkeeper.configure { orm DOORKEEPER_ORM }
+    Doorkeeper.configure do
+      orm DOORKEEPER_ORM
+    end
   end
 
   config.after do

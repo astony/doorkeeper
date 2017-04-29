@@ -3,8 +3,8 @@ module ModelHelper
     @client = FactoryGirl.create(:application, client_attributes)
   end
 
-  def create_resource_owner
-    @resource_owner = User.create!(name: 'Joe', password: 'sekret')
+  def create_resource_owner(options = {})
+    @resource_owner = FactoryGirl.create(:user, options)
   end
 
   def authorization_code_exists(options = {})
@@ -12,38 +12,38 @@ module ModelHelper
   end
 
   def access_grant_should_exist_for(client, resource_owner)
-    grant = Doorkeeper::AccessGrant.first
+    grant = Doorkeeper.configuration.access_grant_model.constantize.first
 
     expect(grant.application).to have_attributes(id: client.id).
-      and(be_instance_of(Doorkeeper::Application))
+      and(be_instance_of(Doorkeeper.configuration.application_model.constantize))
 
     expect(grant.resource_owner_id).to eq(resource_owner.id)
   end
 
   def access_token_should_exist_for(client, resource_owner)
-    token = Doorkeeper::AccessToken.first
+    token = Doorkeeper.configuration.access_token_model.constantize.first
 
     expect(token.application).to have_attributes(id: client.id).
-      and(be_instance_of(Doorkeeper::Application))
+      and(be_instance_of(Doorkeeper.configuration.application_model.constantize))
 
     expect(token.resource_owner_id).to eq(resource_owner.id)
   end
 
   def access_grant_should_not_exist
-    expect(Doorkeeper::AccessGrant.all).to be_empty
+    expect(Doorkeeper.configuration.access_grant_model.constantize.all).to be_empty
   end
 
   def access_token_should_not_exist
-    expect(Doorkeeper::AccessToken.all).to be_empty
+    expect(Doorkeeper.configuration.access_token_model.constantize.all).to be_empty
   end
 
   def access_grant_should_have_scopes(*args)
-    grant = Doorkeeper::AccessGrant.first
+    grant = Doorkeeper.configuration.access_grant_model.constantize.first
     expect(grant.scopes).to eq(Doorkeeper::OAuth::Scopes.from_array(args))
   end
 
   def access_token_should_have_scopes(*args)
-    grant = Doorkeeper::AccessToken.last
+    grant = Doorkeeper.configuration.access_token_model.constantize.last
     expect(grant.scopes).to eq(Doorkeeper::OAuth::Scopes.from_array(args))
   end
 

@@ -28,7 +28,7 @@ describe Doorkeeper::AuthorizationsController, 'implicit grant flow' do
   end
 
   let(:client)        { FactoryGirl.create :application }
-  let(:user)          { User.create!(name: 'Joe', password: 'sekret') }
+  let(:user)          { FactoryGirl.create :user }
   let(:access_token)  { FactoryGirl.build :access_token, resource_owner_id: user.id, application_id: client.id }
 
   before do
@@ -50,7 +50,7 @@ describe Doorkeeper::AuthorizationsController, 'implicit grant flow' do
     end
 
     it 'includes access token in fragment' do
-      expect(response.query_params['access_token']).to eq(Doorkeeper::AccessToken.first.token)
+      expect(response.query_params['access_token']).to eq(Doorkeeper.configuration.access_token_model.constantize.first.token)
     end
 
     it 'includes token type in fragment' do
@@ -62,11 +62,11 @@ describe Doorkeeper::AuthorizationsController, 'implicit grant flow' do
     end
 
     it 'issues the token for the current client' do
-      expect(Doorkeeper::AccessToken.first.application_id).to eq(client.id)
+      expect(Doorkeeper.configuration.access_token_model.constantize.first.application_id).to eq(client.id)
     end
 
     it 'issues the token for the current resource owner' do
-      expect(Doorkeeper::AccessToken.first.resource_owner_id).to eq(user.id)
+      expect(Doorkeeper.configuration.access_token_model.constantize.first.resource_owner_id).to eq(user.id)
     end
   end
 
@@ -97,7 +97,7 @@ describe Doorkeeper::AuthorizationsController, 'implicit grant flow' do
     end
 
     it 'does not issue any access token' do
-      expect(Doorkeeper::AccessToken.all).to be_empty
+      expect(Doorkeeper.configuration.access_token_model.constantize.all).to be_empty
     end
   end
 
@@ -114,7 +114,7 @@ describe Doorkeeper::AuthorizationsController, 'implicit grant flow' do
     end
 
     it 'does not creates a new access token' do
-      expect(Doorkeeper::AccessToken.count).to eq(1)
+      expect(Doorkeeper.configuration.access_token_model.constantize.count).to eq(1)
     end
   end
 
@@ -133,11 +133,11 @@ describe Doorkeeper::AuthorizationsController, 'implicit grant flow' do
     end
 
     it 'should not issue a grant' do
-      expect(Doorkeeper::AccessGrant.count).to be 0
+      expect(Doorkeeper.configuration.access_grant_model.constantize.count).to be 0
     end
 
     it 'should issue a token' do
-      expect(Doorkeeper::AccessToken.count).to be 1
+      expect(Doorkeeper.configuration.access_token_model.constantize.count).to be 1
     end
   end
 
@@ -158,11 +158,11 @@ describe Doorkeeper::AuthorizationsController, 'implicit grant flow' do
     end
 
     it 'should issue a grant' do
-      expect(Doorkeeper::AccessGrant.count).to be 1
+      expect(Doorkeeper.configuration.access_grant_model.constantize.count).to be 1
     end
 
     it 'should not issue a token' do
-      expect(Doorkeeper::AccessToken.count).to be 0
+      expect(Doorkeeper.configuration.access_token_model.constantize.count).to be 0
     end
   end
 
@@ -180,7 +180,7 @@ describe Doorkeeper::AuthorizationsController, 'implicit grant flow' do
     end
 
     it 'should issue a token' do
-      expect(Doorkeeper::AccessToken.count).to be 1
+      expect(Doorkeeper.configuration.access_token_model.constantize.count).to be 1
     end
 
     it 'includes token type in fragment' do
@@ -192,11 +192,11 @@ describe Doorkeeper::AuthorizationsController, 'implicit grant flow' do
     end
 
     it 'issues the token for the current client' do
-      expect(Doorkeeper::AccessToken.first.application_id).to eq(client.id)
+      expect(Doorkeeper.configuration.access_token_model.constantize.first.application_id).to eq(client.id)
     end
 
     it 'issues the token for the current resource owner' do
-      expect(Doorkeeper::AccessToken.first.resource_owner_id).to eq(user.id)
+      expect(Doorkeeper.configuration.access_token_model.constantize.first.resource_owner_id).to eq(user.id)
     end
   end
 
@@ -211,8 +211,8 @@ describe Doorkeeper::AuthorizationsController, 'implicit grant flow' do
     end
 
     it 'does not issue any token' do
-      expect(Doorkeeper::AccessGrant.count).to eq 0
-      expect(Doorkeeper::AccessToken.count).to eq 0
+      expect(Doorkeeper.configuration.access_grant_model.constantize.count).to eq 0
+      expect(Doorkeeper.configuration.access_token_model.constantize.count).to eq 0
     end
   end
 end

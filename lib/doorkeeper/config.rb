@@ -9,33 +9,10 @@ module Doorkeeper
 
   def self.configure(&block)
     @config = Config::Builder.new(&block).build
-    setup_orm_adapter
-    setup_orm_models
-    setup_application_owner if @config.enable_application_owner?
   end
 
   def self.configuration
     @config || (fail MissingConfiguration)
-  end
-
-  def self.setup_orm_adapter
-    @orm_adapter = "doorkeeper/orm/#{configuration.orm}".classify.constantize
-  rescue NameError => e
-    fail e, "ORM adapter not found (#{configuration.orm})", <<-ERROR_MSG.squish
-[doorkeeper] ORM adapter not found (#{configuration.orm}), or there was an error
-trying to load it.
-
-You probably need to add the related gem for this adapter to work with
-doorkeeper.
-      ERROR_MSG
-  end
-
-  def self.setup_orm_models
-    @orm_adapter.initialize_models!
-  end
-
-  def self.setup_application_owner
-    @orm_adapter.initialize_application_owner!
   end
 
   class Config
@@ -119,7 +96,7 @@ doorkeeper.
       # (disabled by default)
       # Rationale: https://github.com/doorkeeper-gem/doorkeeper/issues/383
       def reuse_access_token
-        @config.instance_variable_set("@reuse_access_token", true)
+        @config.instance_variable_set('@reuse_access_token', true)
       end
 
       # Forces the usage of the HTTPS protocol in non-native redirect uris
@@ -130,7 +107,7 @@ doorkeeper.
       # @param [Boolean] boolean value for the parameter, true by default in
       # non-development environment
       def force_ssl_in_redirect_uri(boolean)
-        @config.instance_variable_set("@force_ssl_in_redirect_uri", boolean)
+        @config.instance_variable_set('@force_ssl_in_redirect_uri', boolean)
       end
 
       # Use a custom class for generating the access token.
@@ -139,9 +116,31 @@ doorkeeper.
       # @param access_token_generator [String]
       #   the name of the access token generator class
       def access_token_generator(access_token_generator)
-        @config.instance_variable_set(
-          '@access_token_generator', access_token_generator
-        )
+        @config.instance_variable_set('@access_token_generator', access_token_generator)
+      end
+
+      def access_grant_model(access_grant_model)
+        @config.instance_variable_set('@access_grant_model', access_grant_model)
+      end
+
+      def access_token_model(access_token_model)
+        @config.instance_variable_set('@access_token_model', access_token_model)
+      end
+
+      def application_model(application_model)
+        @config.instance_variable_set('@application_model', application_model)
+      end
+
+      def user_model(user_model)
+        @config.instance_variable_set('@user_model', user_model)
+      end
+
+      def concerns(*concerns)
+        @config.instance_variable_set('@concerns', concerns)
+      end
+
+      def mixins(*mixins)
+        @config.instance_variable_set('@mixins', mixins)
       end
 
       # The controller Doorkeeper::ApplicationController inherits from.
@@ -224,9 +223,11 @@ doorkeeper.
              logger.warn(I18n.translate('doorkeeper.errors.messages.resource_owner_authenticator_not_configured'))
              nil
            end)
+
     option :admin_authenticator,
            as: :authenticate_admin,
            default: ->(_routes) {}
+
     option :resource_owner_from_credentials,
            default: (lambda do |_routes|
              warn(I18n.translate('doorkeeper.errors.messages.credential_flow_not_configured'))
@@ -238,15 +239,29 @@ doorkeeper.
     option :custom_access_token_expires_in, default: ->(_app) { nil }
     option :authorization_code_expires_in,  default: 600
     option :orm,                            default: :active_record
+    option :orm_options,                    default: Hash.new
+    option :access_grant_model,             default: 'AccessGrant'
+    option :access_token_model,             default: 'AccessToken'
+    option :application_model,              default: 'Application'
+    option :user_model,                     default: 'User'
+    option :concerns,                       default: %w(accessible
+                                                        database_authenticatable
+                                                        expirable
+                                                        info
+                                                        ownership
+                                                        revocable
+                                                        scopes)
+    option :mixins,                         default: %w(access_grant
+                                                        access_token
+                                                        application
+                                                        user)
     option :native_redirect_uri,            default: 'urn:ietf:wg:oauth:2.0:oob'
-    option :active_record_options,          default: {}
     option :realm,                          default: 'Doorkeeper'
     option :force_ssl_in_redirect_uri,      default: !Rails.env.development?
     option :grant_flows,                    default: %w(authorization_code client_credentials)
-    option :access_token_generator,
-           default: 'Doorkeeper::OAuth::Helpers::UniqueToken'
-    option :base_controller,
-           default: 'ActionController::Base'
+    option :access_token_generator,         default: 'Doorkeeper::OAuth::Helpers::UniqueToken'
+    option :base_controller,                default: 'ActionController::Base'
+    option :base_active_record,             default: 'ActiveRecord::Base'
 
     attr_reader :reuse_access_token
 
@@ -291,6 +306,10 @@ doorkeeper.
 
     def token_grant_types
       @token_grant_types ||= calculate_token_grant_types
+    end
+
+    def models
+      @models ||= [access_grant_model, access_token_model, application_model, user_model]
     end
 
     private

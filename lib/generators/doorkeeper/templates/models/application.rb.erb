@@ -1,0 +1,5 @@
+class <%= Doorkeeper.configuration.application_model %> < <%= Doorkeeper.configuration.base_active_record %>
+  self.table_name = 'oauth_applications'
+
+  include Doorkeeper::Models::Mixins::Application
+end

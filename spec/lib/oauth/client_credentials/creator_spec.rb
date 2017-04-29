@@ -8,7 +8,7 @@ class Doorkeeper::OAuth::ClientCredentialsRequest
     it 'creates a new token' do
       expect do
         subject.call(client, scopes)
-      end.to change { Doorkeeper::AccessToken.count }.by(1)
+      end.to change { Doorkeeper.configuration.access_token_model.constantize.count }.by(1)
     end
 
     context "when reuse_access_token is true" do
@@ -18,7 +18,7 @@ class Doorkeeper::OAuth::ClientCredentialsRequest
 
         result = subject.call(client, scopes)
 
-        expect(Doorkeeper::AccessToken.count).to eq(1)
+        expect(Doorkeeper.configuration.access_token_model.constantize.count).to eq(1)
         expect(result).to eq(existing_token)
       end
     end
@@ -30,13 +30,13 @@ class Doorkeeper::OAuth::ClientCredentialsRequest
 
         result = subject.call(client, scopes)
 
-        expect(Doorkeeper::AccessToken.count).to eq(2)
+        expect(Doorkeeper.configuration.access_token_model.constantize.count).to eq(2)
         expect(result).not_to eq(existing_token)
       end
     end
 
     it 'returns false if creation fails' do
-      expect(Doorkeeper::AccessToken).to receive(:find_or_create_for).and_return(false)
+      expect(Doorkeeper.configuration.access_token_model.constantize).to receive(:find_or_create_for).and_return(false)
       created = subject.call(client, scopes)
       expect(created).to be_falsey
     end

@@ -2,7 +2,7 @@ require 'spec_helper_integration'
 
 feature 'Skip authorization form' do
   background do
-    config_is_set(:authenticate_resource_owner) { User.first || redirect_to('/sign_in') }
+    config_is_set(:authenticate_resource_owner) { Doorkeeper.configuration.user_model.constantize.first || redirect_to('/sign_in') }
     client_exists
     default_scopes_exist  :public
     optional_scopes_exist :write
@@ -21,7 +21,7 @@ feature 'Skip authorization form' do
       i_should_not_see 'Authorize'
       client_should_be_authorized @client
       i_should_be_on_client_callback @client
-      url_should_have_param 'code', Doorkeeper::AccessGrant.first.token
+      url_should_have_param 'code', Doorkeeper.configuration.access_grant_model.constantize.first.token
     end
 
     scenario 'does not skip authorization when scopes differ (new request has fewer scopes)' do

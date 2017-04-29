@@ -17,7 +17,8 @@ module Doorkeeper
       private
 
       def grant
-        AccessGrant.by_token(parameters[:code])
+        Doorkeeper.configuration.access_grant_model.constantize.by_token(parameters[:code])
+        # Doorkeeper.configuration
       end
     end
   end

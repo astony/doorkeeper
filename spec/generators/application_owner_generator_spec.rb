@@ -1,10 +1,10 @@
 require 'spec_helper_integration'
-require 'generators/doorkeeper/application_owner_generator'
+require 'generators/doorkeeper/migration/application_owner_generator'
 
-describe 'Doorkeeper::ApplicationOwnerGenerator' do
+describe Doorkeeper::Migration::ApplicationOwnerGenerator do
   include GeneratorSpec::TestCase
 
-  tests Doorkeeper::ApplicationOwnerGenerator
+  tests Doorkeeper::Migration::ApplicationOwnerGenerator
   destination ::File.expand_path('../tmp/dummy', __FILE__)
 
   describe 'after running the generator' do
@@ -16,7 +16,7 @@ describe 'Doorkeeper::ApplicationOwnerGenerator' do
     end
 
     it 'creates a migration' do
-      assert_migration 'db/migrate/add_owner_to_application.rb'
+      assert_migration 'db/migrate/add_owner_to_applications.rb'
     end
   end
 end

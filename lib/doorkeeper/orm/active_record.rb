@@ -1,22 +1,22 @@
 module Doorkeeper
-  module Orm
-    module ActiveRecord
+  module ORM
+    class ActiveRecord < Base
       def self.initialize_models!
-        require 'doorkeeper/orm/active_record/access_grant'
-        require 'doorkeeper/orm/active_record/access_token'
-        require 'doorkeeper/orm/active_record/application'
-
-        if Doorkeeper.configuration.active_record_options[:establish_connection]
-          [Doorkeeper::AccessGrant, Doorkeeper::AccessToken, Doorkeeper::Application].each do |c|
-            c.send :establish_connection, Doorkeeper.configuration.active_record_options[:establish_connection]
-          end
+        Doorkeeper.configuration.models.each do |model|
+          establish_connection(model) if establish_options
         end
       end
 
       def self.initialize_application_owner!
-        require 'doorkeeper/models/concerns/ownership'
+        Doorkeeper.configuration.application_model.constantize.send :include, Doorkeeper::Models::Concerns::Ownership
+      end
 
-        Doorkeeper::Application.send :include, Doorkeeper::Models::Ownership
+      def self.establish_connection(model)
+        model.constantize.send :establish_connection, establish_options
+      end
+
+      def self.establish_options
+        Doorkeeper.configuration.orm_options[:establish_connection]
       end
     end
   end

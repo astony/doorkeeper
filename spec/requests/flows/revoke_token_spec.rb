@@ -7,7 +7,7 @@ describe 'Revoke Token Flow' do
 
   context 'with default parameters' do
     let(:client_application) { FactoryGirl.create :application }
-    let(:resource_owner) { User.create!(name: 'John', password: 'sekret') }
+    let(:resource_owner) { FactoryGirl.create :user }
     let(:access_token) do
       FactoryGirl.create(:access_token,
                          application: client_application,
@@ -43,13 +43,13 @@ describe 'Revoke Token Flow' do
 
       context 'with invalid token to revoke' do
         it 'should not revoke any tokens and respond successfully' do
-          num_prev_revoked_tokens = Doorkeeper::AccessToken.where(revoked_at: nil).count
+          num_prev_revoked_tokens = Doorkeeper.configuration.access_token_model.constantize.where(revoked_at: nil).count
           post revocation_token_endpoint_url, { token: 'I_AM_AN_INVALID_TOKEN' }, headers
 
           # The authorization server responds with HTTP status code 200 even if
           # token is invalid
           expect(response).to be_success
-          expect(Doorkeeper::AccessToken.where(revoked_at: nil).count).to eq(num_prev_revoked_tokens)
+          expect(Doorkeeper.configuration.access_token_model.constantize.where(revoked_at: nil).count).to eq(num_prev_revoked_tokens)
         end
       end
 

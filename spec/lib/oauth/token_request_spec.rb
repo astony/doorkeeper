@@ -29,7 +29,7 @@ module Doorkeeper::OAuth
     it 'creates an access token' do
       expect do
         subject.authorize
-      end.to change { Doorkeeper::AccessToken.count }.by(1)
+      end.to change { Doorkeeper.configuration.access_token_model.constantize.count }.by(1)
     end
 
     it 'returns a code response' do
@@ -40,7 +40,7 @@ module Doorkeeper::OAuth
       allow(pre_auth).to receive(:authorizable?).and_return(false)
       expect do
         subject.authorize
-      end.to_not change { Doorkeeper::AccessToken.count }
+      end.to_not change { Doorkeeper.configuration.access_token_model.constantize.count }
     end
 
     it 'returns a error response' do
@@ -60,7 +60,7 @@ module Doorkeeper::OAuth
 
       it 'should use the custom ttl' do
         subject.authorize
-        token = Doorkeeper::AccessToken.first
+        token = Doorkeeper.configuration.access_token_model.constantize.first
         expect(token.expires_in).to eq(1234)
       end
     end
@@ -70,7 +70,7 @@ module Doorkeeper::OAuth
         allow(Doorkeeper.configuration).to receive(:reuse_access_token).and_return(true)
         expect do
           subject.authorize
-        end.to change { Doorkeeper::AccessToken.count }.by(1)
+        end.to change { Doorkeeper.configuration.access_token_model.constantize.count }.by(1)
       end
 
       it 'creates a new token if scopes do not match' do
@@ -79,7 +79,7 @@ module Doorkeeper::OAuth
                            resource_owner_id: owner.id, scopes: '')
         expect do
           subject.authorize
-        end.to change { Doorkeeper::AccessToken.count }.by(1)
+        end.to change { Doorkeeper.configuration.access_token_model.constantize.count }.by(1)
       end
 
       it 'skips token creation if there is a matching one' do
@@ -91,7 +91,7 @@ module Doorkeeper::OAuth
 
         expect do
           subject.authorize
-        end.to_not change { Doorkeeper::AccessToken.count }
+        end.to_not change { Doorkeeper.configuration.access_token_model.constantize.count }
       end
     end
   end

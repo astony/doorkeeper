@@ -1,7 +1,9 @@
 require 'doorkeeper/version'
 require 'doorkeeper/engine'
 require 'doorkeeper/config'
-
+require 'doorkeeper/models'
+require 'doorkeeper/migration'
+require 'doorkeeper/orm'
 require 'doorkeeper/errors'
 require 'doorkeeper/server'
 require 'doorkeeper/request'
@@ -33,21 +35,16 @@ require 'doorkeeper/oauth/token'
 require 'doorkeeper/oauth/invalid_token_response'
 require 'doorkeeper/oauth/forbidden_token_response'
 
-require 'doorkeeper/models/concerns/scopes'
-require 'doorkeeper/models/concerns/expirable'
-require 'doorkeeper/models/concerns/revocable'
-require 'doorkeeper/models/concerns/accessible'
+require 'doorkeeper/models/concerns'
+require 'doorkeeper/models/mixins'
 
-require 'doorkeeper/models/access_grant_mixin'
-require 'doorkeeper/models/access_token_mixin'
-require 'doorkeeper/models/application_mixin'
+require 'doorkeeper/orm/base'
+require 'doorkeeper/orm/active_record'
 
 require 'doorkeeper/helpers/controller'
 
 require 'doorkeeper/rails/routes'
 require 'doorkeeper/rails/helpers'
-
-require 'doorkeeper/orm/active_record'
 
 require 'active_support/deprecation'
 

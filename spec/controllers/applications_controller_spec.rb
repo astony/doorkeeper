@@ -19,7 +19,7 @@ module Doorkeeper
           post :create, doorkeeper_application: {
             name: 'Example',
             redirect_uri: 'https://example.com' }
-        end.to_not change { Doorkeeper::Application.count }
+        end.to_not change { Doorkeeper.configuration.application_model.constantize.count }
       end
     end
 
@@ -33,7 +33,7 @@ module Doorkeeper
           post :create, doorkeeper_application: {
             name: 'Example',
             redirect_uri: 'https://example.com' }
-        end.to change { Doorkeeper::Application.count }.by(1)
+        end.to change { Doorkeeper.configuration.application_model.constantize.count }.by(1)
         expect(response).to be_redirect
       end
 

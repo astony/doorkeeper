@@ -11,7 +11,7 @@ module Doorkeeper::OAuth
         request = ClientCredentialsRequest.new(server, client, {})
         expect do
           request.authorize
-        end.to change { Doorkeeper::AccessToken.count }.by(1)
+        end.to change { Doorkeeper.configuration.access_token_model.constantize.count }.by(1)
       end
     end
 
@@ -20,7 +20,7 @@ module Doorkeeper::OAuth
         request = ClientCredentialsRequest.new(server, nil, {})
         expect do
           request.authorize
-        end.to_not change { Doorkeeper::AccessToken.count }
+        end.to_not change { Doorkeeper.configuration.access_token_model.constantize.count }
       end
     end
   end

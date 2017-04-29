@@ -3,8 +3,8 @@ require 'spec_helper_integration'
 feature 'Authorization Code Flow Errors' do
   let(:client_params) { {} }
   background do
-    config_is_set(:authenticate_resource_owner) { User.first || redirect_to('/sign_in') }
-    client_exists client_params
+    config_is_set(:authenticate_resource_owner) { Doorkeeper.configuration.user_model.constantize.first || redirect_to('/sign_in') }
+    client_exists
     create_resource_owner
     sign_in
   end
@@ -57,7 +57,7 @@ describe 'Authorization Code Flow Errors', 'after authorization' do
     # Second attempt with same token
     expect do
       post token_endpoint_url(code: @authorization.token, client: @client)
-    end.to_not change { Doorkeeper::AccessToken.count }
+    end.to_not change { Doorkeeper.configuration.access_token_model.constantize.count }
 
     should_not_have_json 'access_token'
     should_have_json 'error', 'invalid_grant'

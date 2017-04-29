@@ -14,22 +14,6 @@ describe Doorkeeper, 'configuration' do
     end
   end
 
-  describe 'setup_orm_adapter' do
-    it 'adds specific error message to NameError exception' do
-      expect do
-        Doorkeeper.configure { orm 'hibernate' }
-      end.to raise_error(NameError, /ORM adapter not found \(hibernate\)/)
-    end
-
-    it 'does not change other exceptions' do
-      allow_any_instance_of(String).to receive(:classify) { raise NoMethodError }
-
-      expect do
-        Doorkeeper.configure { orm 'hibernate' }
-      end.to raise_error(NoMethodError, /ORM adapter not found \(hibernate\)/)
-    end
-  end
-
   describe 'admin_authenticator' do
     it 'sets the block that is accessible via authenticate_admin' do
       block = proc {}
@@ -174,10 +158,12 @@ describe Doorkeeper, 'configuration' do
           orm DOORKEEPER_ORM
           enable_application_owner
         end
+        Doorkeeper::ORM.initialize!
       end
       it 'adds support for application owner' do
-        expect(Doorkeeper::Application.new).to respond_to :owner
+        expect(Doorkeeper.configuration.application_model.constantize.new).to respond_to :owner
       end
+
       it 'Doorkeeper.configuration.confirm_application_owner? returns false' do
         expect(Doorkeeper.configuration.confirm_application_owner?).not_to be_truthy
       end
@@ -189,10 +175,12 @@ describe Doorkeeper, 'configuration' do
           orm DOORKEEPER_ORM
           enable_application_owner confirmation: true
         end
+        Doorkeeper::ORM.initialize!
       end
       it 'adds support for application owner' do
-        expect(Doorkeeper::Application.new).to respond_to :owner
+        expect(Doorkeeper.configuration.application_model.constantize.new).to respond_to :owner
       end
+
       it 'Doorkeeper.configuration.confirm_application_owner? returns true' do
         expect(Doorkeeper.configuration.confirm_application_owner?).to be_truthy
       end

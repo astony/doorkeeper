@@ -17,6 +17,8 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency "railties", ">= 4.2"
+  s.add_dependency "bcrypt"
+  s.add_dependency "paperclip"
   s.required_ruby_version = ">= 2.1"
 
   s.add_development_dependency "capybara"
@@ -25,6 +27,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "factory_girl", "~> 4.7.0"
   s.add_development_dependency "generator_spec", "~> 0.9.3"
   s.add_development_dependency "rake", ">= 11.3.0"
+  s.add_development_dependency "shoulda-matchers"
   s.add_development_dependency "rspec-rails"
   s.add_development_dependency "pry"
 end

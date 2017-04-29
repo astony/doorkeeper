@@ -1,7 +1,7 @@
 require 'spec_helper_integration'
 require 'generators/doorkeeper/install_generator'
 
-describe 'Doorkeeper::InstallGenerator' do
+describe Doorkeeper::InstallGenerator do
   include GeneratorSpec::TestCase
 
   tests Doorkeeper::InstallGenerator

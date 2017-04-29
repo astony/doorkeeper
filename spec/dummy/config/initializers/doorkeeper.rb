@@ -1,11 +1,13 @@
 Doorkeeper.configure do
-  # Change the ORM that doorkeeper will use.
-  orm DOORKEEPER_ORM
+  # Change the ORM that doorkeeper will use (needs plugins)
+  orm :active_record
 
   # This block will be called to check whether the resource owner is authenticated or not.
   resource_owner_authenticator do
+    fail "Please configure doorkeeper resource_owner_authenticator block located in #{__FILE__}"
     # Put your resource owner authentication logic here.
-    User.where(id: session[:user_id]).first || redirect_to(root_url, alert: 'Needs sign in.')
+    # Example implementation:
+    #   User.find_by_id(session[:user_id]) || redirect_to(new_user_session_url)
   end
 
   # If you want to restrict access to the web interface for adding oauth authorized applications, you need to declare the block below.
@@ -22,12 +24,26 @@ Doorkeeper.configure do
   # If you want to disable expiration, set this to nil.
   # access_token_expires_in 2.hours
 
+  # Assign a custom TTL for implicit grants.
+  # custom_access_token_expires_in do |oauth_client|
+  #   oauth_client.application.additional_settings.implicit_oauth_expiration
+  # end
+
+  # Use a custom class for generating the access token.
+  # https://github.com/doorkeeper-gem/doorkeeper#custom-access-token-generator
+  # access_token_generator '::Doorkeeper::JWT'
+
+  # The controller Doorkeeper::ApplicationController inherits from.
+  # Defaults to ActionController::Base.
+  # https://github.com/doorkeeper-gem/doorkeeper#custom-base-controller
+  # base_controller 'ApplicationController'
+
   # Reuse access token for the same resource owner within an application (disabled by default)
   # Rationale: https://github.com/doorkeeper-gem/doorkeeper/issues/383
   # reuse_access_token
 
   # Issue access tokens with refresh token (disabled by default)
-  use_refresh_token
+  # use_refresh_token
 
   # Provide support for an owner to be assigned to each registered application (disabled by default)
   # Optional parameter confirmation: true (default false) if you want to enforce ownership of
@@ -38,8 +54,8 @@ Doorkeeper.configure do
   # Define access token scopes for your provider
   # For more information go to
   # https://github.com/doorkeeper-gem/doorkeeper/wiki/Using-Scopes
-  default_scopes  :public
-  optional_scopes :write, :update
+  # default_scopes  :public
+  # optional_scopes :write, :update
 
   # Change the way client credentials are retrieved from the request object.
   # By default it retrieves first from the `HTTP_AUTHORIZATION` header, then
@@ -92,5 +108,5 @@ Doorkeeper.configure do
   # end
 
   # WWW-Authenticate Realm (default "Doorkeeper").
-  realm "Doorkeeper"
+  # realm "Doorkeeper"
 end

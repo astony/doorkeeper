@@ -1,0 +1,5 @@
+class <%= Doorkeeper.configuration.access_grant_model %> < <%= Doorkeeper.configuration.base_active_record %>
+  self.table_name = 'oauth_access_grants'
+
+  include Doorkeeper::Models::Mixins::AccessGrant
+end

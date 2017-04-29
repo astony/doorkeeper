@@ -28,7 +28,7 @@ module Doorkeeper::OAuth
       expect do
         subject.client = nil
         subject.authorize
-      end.to change { Doorkeeper::AccessToken.count }.by(1)
+      end.to change { Doorkeeper.configuration.access_token_model.constantize.count }.by(1)
     end
 
     it 'does not issue a new token with an invalid client' do
@@ -36,7 +36,7 @@ module Doorkeeper::OAuth
         subject.client = nil
         subject.parameters = { client_id: 'bad_id' }
         subject.authorize
-      end.to_not change { Doorkeeper::AccessToken.count }
+      end.to_not change { Doorkeeper.configuration.access_token_model.constantize.count }
 
       expect(subject.error).to eq(:invalid_client)
     end
@@ -56,7 +56,7 @@ module Doorkeeper::OAuth
       FactoryGirl.create(:access_token, application_id: client.id, resource_owner_id: owner.id)
       expect do
         subject.authorize
-      end.to change { Doorkeeper::AccessToken.count }.by(1)
+      end.to change { Doorkeeper.configuration.access_token_model.constantize.count }.by(1)
     end
 
     it 'skips token creation if there is already one' do
@@ -64,7 +64,7 @@ module Doorkeeper::OAuth
       FactoryGirl.create(:access_token, application_id: client.id, resource_owner_id: owner.id)
       expect do
         subject.authorize
-      end.to_not change { Doorkeeper::AccessToken.count }
+      end.to_not change { Doorkeeper.configuration.access_token_model.constantize.count }
     end
 
     describe 'with scopes' do
@@ -82,8 +82,8 @@ module Doorkeeper::OAuth
         allow(server).to receive(:scopes).and_return(Doorkeeper::OAuth::Scopes.from_string('public'))
         expect do
           subject.authorize
-        end.to change { Doorkeeper::AccessToken.count }.by(1)
-        expect(Doorkeeper::AccessToken.last.scopes).to include('public')
+        end.to change { Doorkeeper.configuration.access_token_model.constantize.count }.by(1)
+        expect(Doorkeeper.configuration.access_token_model.constantize.last.scopes).to include('public')
       end
     end
   end

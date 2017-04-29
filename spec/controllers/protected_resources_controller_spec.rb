@@ -28,35 +28,35 @@ describe 'doorkeeper authorize filter' do
 
     let(:token_string) { '1A2BC3' }
     let(:token) do
-      double(Doorkeeper::AccessToken,
+      double(Doorkeeper.configuration.access_token_model.constantize,
              acceptable?: true, previous_refresh_token: "",
              revoke_previous_refresh_token!: true)
     end
 
     it 'access_token param' do
-      expect(Doorkeeper::AccessToken).to receive(:by_token).with(token_string).and_return(token)
+      expect(Doorkeeper.configuration.access_token_model.constantize).to receive(:by_token).with(token_string).and_return(token)
       get :index, access_token: token_string
     end
 
     it 'bearer_token param' do
-      expect(Doorkeeper::AccessToken).to receive(:by_token).with(token_string).and_return(token)
+      expect(Doorkeeper.configuration.access_token_model.constantize).to receive(:by_token).with(token_string).and_return(token)
       get :index, bearer_token: token_string
     end
 
     it 'Authorization header' do
-      expect(Doorkeeper::AccessToken).to receive(:by_token).with(token_string).and_return(token)
+      expect(Doorkeeper.configuration.access_token_model.constantize).to receive(:by_token).with(token_string).and_return(token)
       request.env['HTTP_AUTHORIZATION'] = "Bearer #{token_string}"
       get :index
     end
 
     it 'different kind of Authorization header' do
-      expect(Doorkeeper::AccessToken).not_to receive(:by_token)
+      expect(Doorkeeper.configuration.access_token_model.constantize).not_to receive(:by_token)
       request.env['HTTP_AUTHORIZATION'] = "MAC #{token_string}"
       get :index
     end
 
     it 'does not change Authorization header value' do
-      expect(Doorkeeper::AccessToken).to receive(:by_token).exactly(2).times.and_return(token)
+      expect(Doorkeeper.configuration.access_token_model.constantize).to receive(:by_token).exactly(2).times.and_return(token)
       request.env['HTTP_AUTHORIZATION'] = "Bearer #{token_string}"
       get :index
       controller.send(:remove_instance_variable, :@_doorkeeper_token)
@@ -108,25 +108,25 @@ describe 'doorkeeper authorize filter' do
     let(:token_string) { '1A2DUWE' }
 
     it 'allows if the token has particular scopes' do
-      token = double(Doorkeeper::AccessToken,
+      token = double(Doorkeeper.configuration.access_token_model.constantize,
                      accessible?: true, scopes: %w(write public),
                      previous_refresh_token: "",
                      revoke_previous_refresh_token!: true)
       expect(token).to receive(:acceptable?).with([:write]).and_return(true)
       expect(
-        Doorkeeper::AccessToken
+          Doorkeeper.configuration.access_token_model.constantize
       ).to receive(:by_token).with(token_string).and_return(token)
       get :index, access_token: token_string
       expect(response).to be_success
     end
 
     it 'does not allow if the token does not include given scope' do
-      token = double(Doorkeeper::AccessToken,
+      token = double(Doorkeeper.configuration.access_token_model.constantize,
                      accessible?: true, scopes: ['public'], revoked?: false,
                      expired?: false, previous_refresh_token: "",
                      revoke_previous_refresh_token!: true)
       expect(
-        Doorkeeper::AccessToken
+          Doorkeeper.configuration.access_token_model.constantize
       ).to receive(:by_token).with(token_string).and_return(token)
       expect(token).to receive(:acceptable?).with([:write]).and_return(false)
       get :index, access_token: token_string
@@ -199,7 +199,7 @@ describe 'doorkeeper authorize filter' do
 
   context 'when custom forbidden render options are configured' do
     before do
-      expect(Doorkeeper::AccessToken).to receive(:by_token).with(token_string).and_return(token)
+      expect(Doorkeeper.configuration.access_token_model.constantize).to receive(:by_token).with(token_string).and_return(token)
       expect(token).to receive(:acceptable?).with([:write]).and_return(false)
     end
 
@@ -218,7 +218,7 @@ describe 'doorkeeper authorize filter' do
     end
 
     let(:token) do
-      double(Doorkeeper::AccessToken,
+      double(Doorkeeper.configuration.access_token_model.constantize,
              accessible?: true, scopes: ['public'], revoked?: false,
              expired?: false, previous_refresh_token: "",
              revoke_previous_refresh_token!: true)

@@ -23,7 +23,7 @@ module Doorkeeper::OAuth
 
     it "issues the token with same grant's scopes" do
       subject.authorize
-      expect(Doorkeeper::AccessToken.last.scopes).to eq(grant.scopes)
+      expect(Doorkeeper.configuration.access_token_model.constantize.last.scopes).to eq(grant.scopes)
     end
 
     it 'revokes the grant' do
@@ -74,7 +74,7 @@ module Doorkeeper::OAuth
         resource_owner_id: grant.resource_owner_id, scopes: grant.scopes.to_s)
       expect do
         subject.authorize
-      end.to_not change { Doorkeeper::AccessToken.count }
+      end.to_not change { Doorkeeper.configuration.access_token_model.constantize.count }
     end
   end
 end

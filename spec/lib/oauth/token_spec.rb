@@ -98,14 +98,14 @@ module Doorkeeper
       describe :authenticate do
         it 'calls the finder if token was returned' do
           token = ->(_r) { 'token' }
-          expect(AccessToken).to receive(:by_token).with('token')
+          expect(Doorkeeper.configuration.access_token_model.constantize).to receive(:by_token).with('token')
           Token.authenticate double, token
         end
 
         it 'revokes previous refresh_token if token was found' do
           token = ->(_r) { 'token' }
           expect(
-            AccessToken
+            Doorkeeper.configuration.access_token_model.constantize
           ).to receive(:by_token).with('token').and_return(token)
           expect(token).to receive(:revoke_previous_refresh_token!)
           Token.authenticate double, token

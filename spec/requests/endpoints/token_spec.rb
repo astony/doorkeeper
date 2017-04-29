@@ -19,13 +19,13 @@ describe 'Token endpoint' do
       redirect_uri: @client.redirect_uri
     ), {}, 'HTTP_AUTHORIZATION' => basic_auth_header_for_client(@client)
 
-    should_have_json 'access_token', Doorkeeper::AccessToken.first.token
+    should_have_json 'access_token', Doorkeeper.configuration.access_token_model.constantize.first.token
   end
 
   it 'returns null for expires_in when a permanent token is set' do
     config_is_set(:access_token_expires_in, nil)
     post token_endpoint_url(code: @authorization.token, client: @client)
-    should_have_json 'access_token', Doorkeeper::AccessToken.first.token
+    should_have_json 'access_token', Doorkeeper.configuration.access_token_model.constantize.first.token
     should_not_have_json 'expires_in'
   end
 

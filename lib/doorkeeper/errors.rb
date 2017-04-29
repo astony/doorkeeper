@@ -6,6 +6,12 @@ module Doorkeeper
       end
     end
 
+    class NotImplemented < DoorkeeperError
+      def type
+        :not_implemented
+      end
+    end
+
     class InvalidAuthorizationStrategy < DoorkeeperError
       def type
         :unsupported_response_type

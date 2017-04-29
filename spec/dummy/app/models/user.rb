@@ -1,5 +1,4 @@
 class User < ActiveRecord::Base
-  def self.authenticate!(name, password)
-    User.where(name: name, password: password).first
-  end
+  self.table_name = 'oauth_users'
+  include Doorkeeper::Models::Mixins::User
 end

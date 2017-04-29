@@ -108,7 +108,7 @@ module Doorkeeper::OAuth
           server
         )
 
-        expect(result).to be_an_instance_of(Doorkeeper::AccessToken)
+        expect(result).to be_an_instance_of(Doorkeeper.configuration.access_token_model.constantize)
       end
     end
 

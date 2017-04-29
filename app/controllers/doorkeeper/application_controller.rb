@@ -1,6 +1,5 @@
 module Doorkeeper
-  class ApplicationController <
-    Doorkeeper.configuration.base_controller.constantize
+  class ApplicationController < Doorkeeper.configuration.base_controller.constantize
 
     include Helpers::Controller
 

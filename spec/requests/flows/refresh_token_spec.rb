@@ -17,7 +17,7 @@ describe 'Refresh Token Flow' do
     it 'client gets the refresh token and refreshses it' do
       post token_endpoint_url(code: @authorization.token, client: @client)
 
-      token = Doorkeeper::AccessToken.first
+      token = Doorkeeper.configuration.access_token_model.constantize.first
 
       should_have_json 'access_token',  token.token
       should_have_json 'refresh_token', token.refresh_token
@@ -26,7 +26,7 @@ describe 'Refresh Token Flow' do
 
       post refresh_token_endpoint_url(client: @client, refresh_token: token.refresh_token)
 
-      new_token = Doorkeeper::AccessToken.last
+      new_token = Doorkeeper.configuration.access_token_model.constantize.last
       should_have_json 'access_token',  new_token.token
       should_have_json 'refresh_token', new_token.refresh_token
 
@@ -51,7 +51,7 @@ describe 'Refresh Token Flow' do
           client: @client, refresh_token: @token.refresh_token
         )
         should_have_json(
-          'refresh_token', Doorkeeper::AccessToken.last.refresh_token
+          'refresh_token', Doorkeeper.configuration.access_token_model.constantize.last.refresh_token
         )
         expect(@token.reload).not_to be_revoked
       end
@@ -62,7 +62,7 @@ describe 'Refresh Token Flow' do
           client: @client, refresh_token: @token.refresh_token
         )
         should_have_json(
-          'refresh_token', Doorkeeper::AccessToken.last.refresh_token
+          'refresh_token', Doorkeeper.configuration.access_token_model.constantize.last.refresh_token
         )
         expect(@token.reload).not_to be_revoked
       end
@@ -70,7 +70,7 @@ describe 'Refresh Token Flow' do
 
     context "refresh_token revoked on refresh_token request" do
       before do
-        allow(Doorkeeper::AccessToken).to receive(:refresh_token_revoked_on_use?).and_return(false)
+        allow(Doorkeeper.configuration.access_token_model.constantize).to receive(:refresh_token_revoked_on_use?).and_return(false)
       end
 
       it 'client request a token with refresh token' do
@@ -78,7 +78,7 @@ describe 'Refresh Token Flow' do
           client: @client, refresh_token: @token.refresh_token
         )
         should_have_json(
-          'refresh_token', Doorkeeper::AccessToken.last.refresh_token
+          'refresh_token', Doorkeeper.configuration.access_token_model.constantize.last.refresh_token
         )
         expect(@token.reload).to be_revoked
       end
@@ -89,7 +89,7 @@ describe 'Refresh Token Flow' do
           client: @client, refresh_token: @token.refresh_token
         )
         should_have_json(
-          'refresh_token', Doorkeeper::AccessToken.last.refresh_token
+          'refresh_token', Doorkeeper.configuration.access_token_model.constantize.last.refresh_token
         )
         expect(@token.reload).to be_revoked
       end
@@ -109,7 +109,7 @@ describe 'Refresh Token Flow' do
     end
 
     it 'second of simultaneous client requests get an error for revoked acccess token' do
-      allow_any_instance_of(Doorkeeper::AccessToken).to receive(:revoked?).and_return(false, true)
+      allow_any_instance_of(Doorkeeper.configuration.access_token_model.constantize).to receive(:revoked?).and_return(false, true)
       post refresh_token_endpoint_url(client: @client, refresh_token: @token.refresh_token)
 
       should_not_have_json 'refresh_token'
@@ -122,7 +122,7 @@ describe 'Refresh Token Flow' do
       # enable password auth to simulate other devices
       config_is_set(:grant_flows, ["password"])
       config_is_set(:resource_owner_from_credentials) do
-        User.authenticate! params[:username], params[:password]
+        Doorkeeper.configuration.user_model.constantize.authenticate! params[:username], params[:password]
       end
       create_resource_owner
       _another_token = post password_token_endpoint_url(
@@ -152,7 +152,7 @@ describe 'Refresh Token Flow' do
 
     context "refresh_token revoked on refresh_token request" do
       before do
-        allow(Doorkeeper::AccessToken).to receive(:refresh_token_revoked_on_use?).and_return(false)
+        allow(Doorkeeper.configuration.access_token_model.constantize).to receive(:refresh_token_revoked_on_use?).and_return(false)
       end
 
       it 'client request a token after creating another token with the same user' do
@@ -166,7 +166,7 @@ describe 'Refresh Token Flow' do
     end
 
     def last_token
-      Doorkeeper::AccessToken.last_authorized_token_for(
+      Doorkeeper.configuration.access_token_model.constantize.last_authorized_token_for(
         @client.id, @resource_owner.id
       )
     end

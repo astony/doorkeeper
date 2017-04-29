@@ -3,7 +3,7 @@ require 'spec_helper_integration'
 module Doorkeeper::OAuth
   describe RefreshTokenRequest do
     before do
-      allow(Doorkeeper::AccessToken).to receive(:refresh_token_revoked_on_use?).and_return(false)
+      allow(Doorkeeper.configuration.access_token_model.constantize).to receive(:refresh_token_revoked_on_use?).and_return(false)
     end
     let(:server) do
       double :server,
@@ -28,7 +28,7 @@ module Doorkeeper::OAuth
                       access_token_expires_in: 2.minutes,
                       custom_access_token_expires_in: ->(_oauth_client) { 1234 }
 
-      allow(Doorkeeper::AccessToken).to receive(:refresh_token_revoked_on_use?).and_return(false)
+      allow(Doorkeeper.configuration.access_token_model.constantize).to receive(:refresh_token_revoked_on_use?).and_return(false)
 
       RefreshTokenRequest.new(server, refresh_token, credentials).authorize
 
@@ -78,7 +78,7 @@ module Doorkeeper::OAuth
       end
 
       before do
-        allow(Doorkeeper::AccessToken).to receive(:refresh_token_revoked_on_use?).and_return(true)
+        allow(Doorkeeper.configuration.access_token_model.constantize).to receive(:refresh_token_revoked_on_use?).and_return(true)
       end
 
       it 'issues a new token for the client' do
@@ -104,7 +104,7 @@ module Doorkeeper::OAuth
       subject { RefreshTokenRequest.new server, refresh_token, nil }
 
       it 'issues a new token without a client' do
-        expect { subject.authorize }.to change { Doorkeeper::AccessToken.count }.by(1)
+        expect { subject.authorize }.to change { Doorkeeper.configuration.access_token_model.constantize.count }.by(1)
       end
     end
 
@@ -119,13 +119,13 @@ module Doorkeeper::OAuth
 
       it 'transfers scopes from the old token to the new token' do
         subject.authorize
-        expect(Doorkeeper::AccessToken.last.scopes).to eq([:public, :write])
+        expect(Doorkeeper.configuration.access_token_model.constantize.last.scopes).to eq([:public, :write])
       end
 
       it 'reduces scopes to the provided scopes' do
         parameters[:scopes] = 'public'
         subject.authorize
-        expect(Doorkeeper::AccessToken.last.scopes).to eq([:public])
+        expect(Doorkeeper.configuration.access_token_model.constantize.last.scopes).to eq([:public])
       end
 
       it 'validates that scopes are included in the original access token' do
@@ -139,7 +139,7 @@ module Doorkeeper::OAuth
         parameters[:scopes] = 'public update'
         parameters[:scope] = 'public'
         subject.authorize
-        expect(Doorkeeper::AccessToken.last.scopes).to eq([:public])
+        expect(Doorkeeper.configuration.access_token_model.constantize.last.scopes).to eq([:public])
       end
 
       it 'uses params[:scope] in favor of scopes if present (invalid)' do
