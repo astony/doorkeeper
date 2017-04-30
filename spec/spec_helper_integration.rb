@@ -17,6 +17,7 @@ require 'dummy/config/environment'
 require 'rspec/rails'
 require 'generator_spec/test_case'
 require 'database_cleaner'
+require 'pry'
 
 # Load JRuby SQLite3 if in that platform
 begin
